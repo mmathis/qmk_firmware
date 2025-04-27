@@ -121,12 +121,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 //
         case ST_MACRO_QUOTE:
                 if (record->event.pressed) {
-                        SEND_STRING(SS_TAP(X_QUOTE) SS_DELAY(100) SS_TAP(X_SPACE));
+                        SEND_STRING(SS_TAP(X_QUOTE));
                 }
                 break;
         case ST_MACRO_DQUOTE:
                 if (record->event.pressed) {
-                        SEND_STRING(SS_LSFT(SS_TAP(X_QUOTE)) SS_DELAY(100) SS_TAP(X_SPACE));
+                        SEND_STRING(SS_LSFT(SS_TAP(X_QUOTE)));
                 }
                 break;
         }
