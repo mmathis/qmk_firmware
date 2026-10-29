@@ -16,7 +16,7 @@ const uint16_t PROGMEM io_combo[] = {KC_I, KC_O, COMBO_END};
 const uint16_t PROGMEM op_combo[] = {KC_O, KC_P, COMBO_END};
 
 combo_t key_combos[] = {
-        [WR_COMBO] = COMBO(wr_combo, KC_LEAD),
+        [WR_COMBO] = COMBO(wr_combo, QK_LEAD),
         [IO_COMBO] = COMBO(io_combo, KC_ENTER),
         [OP_COMBO] = COMBO(op_combo, LSFT(LCTL(KC_MINUS)))
 };
@@ -25,9 +25,8 @@ combo_t key_combos[] = {
 const key_override_t space_key_override = ko_make_basic(MOD_MASK_SHIFT, KC_SPACE, KC_BSPC);
 
 // This globally defines all key overrides to be used
-const key_override_t **key_overrides = (const key_override_t *[]){
-	&space_key_override,
-	NULL // Null terminate the array of overrides!
+const key_override_t *key_overrides[] = {
+  &space_key_override,
 };
 
 
@@ -55,45 +54,35 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                  KC_GRV, KC_TILD, KC_LBRC, KC_RBRC, KC_NO,                    KC_0, KC_1, KC_2, LALT_T(KC_3), KC_DOT,
                                  KC_SPC, MO(3),                                               KC_TRNS, KC_TRNS),
         
-	[3] = LAYOUT_split_3x5_2(KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,                           RESET, KC_F7, KC_F8, KC_F9, KC_F10,
-                                 DYN_MACRO_PLAY1, DYN_MACRO_PLAY2, KC_NO, KC_NO, KC_NO,       KC_NO, KC_F4, KC_F5, KC_F6, KC_F11,
+	[3] = LAYOUT_split_3x5_2(KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,                           QK_BOOT, KC_F7, KC_F8, KC_F9, KC_F10,
+                                 QK_DYNAMIC_MACRO_PLAY_1, QK_DYNAMIC_MACRO_PLAY_2, KC_NO, KC_NO, KC_NO,       KC_NO, KC_F4, KC_F5, KC_F6, KC_F11,
                                  DM_REC1, DM_REC2, DM_RSTP, KC_NO, KC_NO,                     KC_NO, KC_F1, KC_F2, KC_F3, KC_F12,
                                  KC_TRNS, KC_TRNS,                                            KC_TRNS, KC_TRNS),
 
-       	[4] = LAYOUT_split_3x5_2(KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,                           KC_NO, KC_NO, KC_MS_UP, KC_NO, KC_NO,
-                                 KC_NO, KC_MS_ACCEL0, KC_MS_ACCEL1, KC_MS_ACCEL2, KC_NO,      KC_NO, KC_MS_LEFT, KC_MS_DOWN, KC_MS_RIGHT, KC_NO,
+       	[4] = LAYOUT_split_3x5_2(KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,                           KC_NO, KC_NO, QK_MOUSE_CURSOR_UP, KC_NO, KC_NO,
+                                 KC_NO, QK_MOUSE_ACCELERATION_0, QK_MOUSE_ACCELERATION_1, QK_MOUSE_ACCELERATION_2, KC_NO,      KC_NO, QK_MOUSE_CURSOR_LEFT, QK_MOUSE_CURSOR_DOWN, QK_MOUSE_CURSOR_RIGHT, KC_NO,
                                  KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,                           KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,
-                                 TO(0), KC_MS_BTN3,                                           KC_MS_BTN1, KC_MS_BTN2)
+                                 TO(0), QK_MOUSE_BUTTON_3,                                           QK_MOUSE_BUTTON_1, QK_MOUSE_BUTTON_2)
 };
 
-LEADER_EXTERNS();
-void matrix_scan_user(void) {
-        LEADER_DICTIONARY() {
-                leading = false;
-                leader_end();
-                SEQ_ONE_KEY(KC_O) {
-                        layer_invert(4);
-                }
-                SEQ_TWO_KEYS(KC_W, KC_M) {
-                        SEND_STRING("mathis@mptechnology.ch");
-                }
-                SEQ_THREE_KEYS(KC_W, KC_M, KC_H) {
-                        SEND_STRING("michel.mathis@helvetia.ch");
-                }
-                SEQ_TWO_KEYS(KC_W, KC_P) {
-                        SEND_STRING("+41 44 296 67 05");
-                }
+void leader_end_user(void) {
 
-                SEQ_TWO_KEYS(KC_P, KC_M) {
-                        SEND_STRING("michel@mathisweb.ch");
-                }
-                SEQ_TWO_KEYS(KC_P, KC_P) {
-                        SEND_STRING("+41 79 819 64 75");
-                }
-                SEQ_THREE_KEYS(KC_P, KC_P, KC_H) {
-                        SEND_STRING("+41 32 510 27 13");
-                }
-        }
+  if (leader_sequence_one_key(KC_O)) {
+    layer_invert(4);
+  } else if (leader_sequence_two_keys(KC_W, KC_M)) {
+    SEND_STRING("mathis@mptechnology.ch");
+  } else if (leader_sequence_three_keys(KC_W, KC_M, KC_H)) {
+    SEND_STRING("michel.mathis@helvetia.ch");
+  } else if (leader_sequence_two_keys(KC_W, KC_P)) {
+    SEND_STRING("+41 44 296 67 05");
+  } else if (leader_sequence_two_keys(KC_P, KC_M)) {
+    SEND_STRING("michel@mathisweb.ch");
+  } else if (leader_sequence_two_keys(KC_P, KC_P)) {
+    SEND_STRING("+41 79 819 64 75");
+  } else if (leader_sequence_three_keys(KC_P, KC_P, KC_H)) {
+    SEND_STRING("+41 32 510 27 13");
+  }
+   
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
@@ -116,9 +105,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case MY_LCBR:
                 if(record->event.pressed) {
                         my_lcbr_timer = timer_read();
-                        register_code(KC_LCTRL); // Change the key to be held here
+                        register_code(KC_LCTL); // Change the key to be held here
                 } else {
-                        unregister_code(KC_LCTRL); // Change the key that was held here, too!
+                        unregister_code(KC_LCTL); // Change the key that was held here, too!
                         if (timer_elapsed(my_lcbr_timer) < TAPPING_TERM) {
                                 SEND_STRING("{"); // Change the character(s) to be sent on tap here
                         }
